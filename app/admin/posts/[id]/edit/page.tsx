@@ -1,3 +1,4 @@
+
 import { getPost, updatePost } from "@/action/postAction";
 import PostForm from "../../component/postForm";
 

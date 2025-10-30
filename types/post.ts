@@ -9,3 +9,9 @@ export interface PostFormData {
   title: string;
   body: string;
 }
+
+export interface DataResult {
+  success: boolean;
+  post?: Post;
+  message: string;
+}

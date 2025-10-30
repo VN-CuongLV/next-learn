@@ -1,16 +1,18 @@
 "use client";
-import { PostFormData, Post } from "@/types/post";
+import { Post } from "@/types/post";
 import Form from "next/form";
-import { useFormState } from "react-dom";
+import { useActionState, useEffect } from "react";
 
 const initialState = {
   success: false,
   post: undefined,
+  message: "",
 };
 
 interface UpdateResult {
   success: boolean;
   post?: Post;
+  message: string;
 }
 
 export default function PostForm({
@@ -21,10 +23,27 @@ export default function PostForm({
     prevState: UpdateResult,
     formData: FormData
   ) => Promise<UpdateResult>;
-  initialData?: Post | undefined;
+  initialData?: Post | null;
 }) {
-  const [state, formAction] = useFormState(action, initialState);
-  console.log(initialData);
+  const [state, formAction, pending] = useActionState(action, initialState);
+
+  useEffect(() => {
+    if (state.success && state.post) {
+      const post = state.post;
+
+      // HIỂN THỊ ALERT KÈM THÔNG TIN POST ĐÃ UPDATE
+      alert(
+        `Cập nhật thành công!\n\n` +
+          `ID: ${post.id}\n` +
+          `Tiêu đề: ${post.title}\n` +
+          `Thông tin: ${post.body}`
+      );
+    } else if (state.message && !state.success) {
+      // Hiển thị alert nếu có lỗi
+      alert(`THẤT BẠI: ${state.message}`);
+    }
+  }, [state]);
+
   return (
     <Form action={formAction} className="flex  juxtify-center items-center ">
       <div className="w-4xl mx-auto px-4">
@@ -44,7 +63,7 @@ export default function PostForm({
         <div>
           <label>Nội dung</label>
           <textarea
-            name="content"
+            name="body"
             defaultValue={initialData?.body || ""}
             required
             rows={5}
@@ -54,16 +73,11 @@ export default function PostForm({
 
         <button
           type="submit"
-          disabled={state.success}
+          aria-disabled={pending}
+          disabled={pending}
           className="bg-blue-500 text-white p-2 rounded"
         >
-          {state.success
-            ? initialData
-              ? "Đang lưu..."
-              : "Đang tạo..."
-            : initialData
-            ? "Cập nhật"
-            : "Tạo mới"}
+          {pending ? "Đang xử lý..." : "Lưu Bài viết"}
         </button>
       </div>
     </Form>
